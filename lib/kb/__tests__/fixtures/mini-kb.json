@@ -1,0 +1,28 @@
+{
+  "pages": [
+    {
+      "doc": "owner-manual",
+      "page": 7,
+      "section": "Specifications",
+      "title": "Specifications",
+      "summary": "Duty cycle and current ranges for MIG at 120V and 240V.",
+      "keyFacts": ["25% @ 200A on 240V MIG", "40% @ 100A on 120V"],
+      "tables": [{ "name": "Rated Duty Cycles", "rows": [["240V", "25% @ 200A"]] }],
+      "diagrams": [],
+      "searchableText": "duty cycle MIG 200A 240V welding",
+      "imagePath": "/manual/owner-manual-7.png"
+    },
+    {
+      "doc": "owner-manual",
+      "page": 16,
+      "section": "TIG / Stick",
+      "title": "Polarity Setup",
+      "summary": "DCEN and DCEP cable-to-socket setup for TIG and Stick.",
+      "keyFacts": ["TIG uses DCEN", "ground clamp in positive socket for DCEN"],
+      "tables": [],
+      "diagrams": [{ "name": "DCEN diagram", "describes": "torch to negative socket" }],
+      "searchableText": "polarity DCEN DCEP TIG stick ground clamp socket",
+      "imagePath": "/manual/owner-manual-16.png"
+    }
+  ]
+}
