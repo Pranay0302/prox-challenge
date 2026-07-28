@@ -4,7 +4,8 @@ import { encodeSse } from "@/lib/agent/sse";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 300;
+// 60s is the Vercel Hobby ceiling; Pro can raise this to 300 for long answers.
+export const maxDuration = 60;
 
 const DEFAULT_MODEL = "claude-opus-4-8";
 

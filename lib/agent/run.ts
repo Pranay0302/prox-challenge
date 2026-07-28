@@ -50,7 +50,20 @@ export async function* runAgent(opts: {
         allowedTools: VULCAN_TOOL_NAMES,
         // Per-request key (BYOK). `env` REPLACES the subprocess environment, so
         // spread process.env to keep PATH/HOME, then override the API key.
-        env: { ...process.env, ANTHROPIC_API_KEY: opts.env.anthropicApiKey },
+        // On serverless (Vercel) the only writable path is /tmp — point the
+        // subprocess's home/config/cache there so the SDK can run.
+        env: {
+          ...process.env,
+          ANTHROPIC_API_KEY: opts.env.anthropicApiKey,
+          ...(process.env.VERCEL
+            ? {
+                HOME: "/tmp",
+                TMPDIR: "/tmp",
+                XDG_CONFIG_HOME: "/tmp/.config",
+                XDG_CACHE_HOME: "/tmp/.cache",
+              }
+            : {}),
+        },
         // Auto-allow our tools; deny the SDK's built-in filesystem/bash tools.
         canUseTool: async (toolName: string, input: Record<string, unknown>) =>
           toolName.startsWith("mcp__vulcan__")
