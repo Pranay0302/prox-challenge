@@ -539,3 +539,13 @@ button.ghost:hover {
   from { opacity: 0.72; transform: translate(-50%, -50%) scale(1); }
   to { opacity: 1; transform: translate(-52%, -54%) scale(1.09); }
 }
+
+.modal-error {
+  color: #e59a80;
+  font-size: 0.86rem;
+  margin: 11px 2px 0;
+  animation: fadeUp 0.25s ease both;
+}
+.modal input[aria-invalid="true"] {
+  border-color: #c96a4c;
+}

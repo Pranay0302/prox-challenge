@@ -21,6 +21,7 @@ export default function Chat() {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [hasServerKey, setHasServerKey] = useState<boolean | null>(null);
   const [keyModalOpen, setKeyModalOpen] = useState(false);
+  const [keyError, setKeyError] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,21 +42,41 @@ export default function Chat() {
   // The visitor must supply a key only when the server has none (public deploy).
   const needsKey = hasServerKey === false && !apiKey;
 
-  function saveKey(k: string) {
-    const t = k.trim();
-    if (t) {
-      try {
-        localStorage.setItem(KEY_STORAGE, t);
-      } catch {}
-      setApiKey(t);
-    }
-    setKeyModalOpen(false);
+  function openKeyModal() {
+    setKeyError("");
+    setKeyModalOpen(true);
   }
+
+  // Validate the key server-side (free models-list check) before accepting it.
+  async function submitKey(key: string): Promise<{ ok: boolean; error?: string }> {
+    try {
+      const res = await fetch("/api/validate-key", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ key }),
+      });
+      const data = (await res.json()) as { valid: boolean; error?: string };
+      if (data.valid) {
+        try {
+          localStorage.setItem(KEY_STORAGE, key);
+        } catch {}
+        setApiKey(key);
+        setKeyError("");
+        setKeyModalOpen(false);
+        return { ok: true };
+      }
+      return { ok: false, error: data.error };
+    } catch {
+      return { ok: false, error: "Couldn’t reach the server to check the key. Try again." };
+    }
+  }
+
   function clearKey() {
     try {
       localStorage.removeItem(KEY_STORAGE);
     } catch {}
     setApiKey(null);
+    setKeyError("");
     setKeyModalOpen(false);
   }
 
@@ -79,7 +100,7 @@ export default function Chat() {
     const q = text.trim();
     if (!q || busy) return;
     if (needsKey) {
-      setKeyModalOpen(true);
+      openKeyModal();
       return;
     }
     setInput("");
@@ -108,6 +129,7 @@ export default function Chat() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let stop = false;
 
       for (;;) {
         const { done, value } = await reader.read();
@@ -126,11 +148,37 @@ export default function Chat() {
             });
           } else if (ev.event === "error") {
             const { message, code } = ev.data as { message: string; code?: string };
-            patchLast((m) => {
-              m.text += `${m.text ? "\n\n" : ""}⚠️ ${message}`;
-            });
-            if (code === "missing_key" || /api key/i.test(message)) setKeyModalOpen(true);
+            const isKeyErr =
+              code === "missing_key" ||
+              /invalid api key|authentication|x-api-key|\b401\b|api key/i.test(message);
+            if (isKeyErr) {
+              // Roll back the failed attempt, restore the question, prompt for a key.
+              setMessages((cur) => {
+                const copy = cur.slice();
+                if (copy.at(-1)?.role === "assistant") copy.pop();
+                if (copy.at(-1)?.role === "user") copy.pop();
+                return copy;
+              });
+              setInput(q);
+              setKeyError(
+                code === "missing_key"
+                  ? "Add your Anthropic API key to start."
+                  : "That key was rejected. Please enter a valid Anthropic API key.",
+              );
+              setKeyModalOpen(true);
+              stop = true;
+            } else {
+              patchLast((m) => {
+                m.text += `${m.text ? "\n\n" : ""}⚠️ ${message}`;
+              });
+            }
           }
+        }
+        if (stop) {
+          try {
+            await reader.cancel();
+          } catch {}
+          break;
         }
       }
     } catch (e) {
@@ -155,7 +203,7 @@ export default function Chat() {
                 Clear chat
               </button>
             )}
-            <button className="key-btn" onClick={() => setKeyModalOpen(true)}>
+            <button className="key-btn" onClick={openKeyModal}>
               {keyLabel}
             </button>
           </div>
@@ -168,7 +216,7 @@ export default function Chat() {
           (needsKey ? (
             <div className="key-gate">
               <p className="empty-lead">Add your Anthropic API key to start asking questions.</p>
-              <button className="primary" onClick={() => setKeyModalOpen(true)}>
+              <button className="primary" onClick={openKeyModal}>
                 Add API key
               </button>
               <p className="key-gate-note">
@@ -222,7 +270,8 @@ export default function Chat() {
         open={keyModalOpen}
         initialKey={apiKey ?? ""}
         canClose={!needsKey}
-        onSave={saveKey}
+        initialError={keyError}
+        onSubmit={submitKey}
         onClear={clearKey}
         onClose={() => setKeyModalOpen(false)}
       />
