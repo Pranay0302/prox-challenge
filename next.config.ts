@@ -14,6 +14,14 @@ const csp = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // The Agent SDK spawns a CLI / uses native modules — don't bundle it.
+  serverExternalPackages: ["@anthropic-ai/claude-agent-sdk", "@anthropic-ai/sdk"],
+  devIndicators: false,
+  // Ensure the committed KB + page images ship with the server bundle
+  // (the chat route reads them from disk at runtime).
+  outputFileTracingIncludes: {
+    "/api/chat": ["./data/**/*", "./public/manual/**/*"],
+  },
   async headers() {
     if (process.env.NODE_ENV !== "production") return [];
     return [

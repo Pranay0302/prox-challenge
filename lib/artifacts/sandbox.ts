@@ -33,25 +33,20 @@ export function wrapArtifactHtml(bodyHtml: string, opts: WrapOptions = {}): stri
 <title>${title}</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg:#ffffff; --fg:#1a1a1a; --muted:#5c626c; --accent:#c85a12;
-    --border:#e4e4e0; --panel:#f6f6f3; --ok:#1f8a4c; --warn:#c0392b;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg:#1c1f26; --fg:#e8e6e1; --muted:#9aa0aa; --accent:#ff7a1a;
-      --border:#2a2e37; --panel:#232732; --ok:#3ecf76; --warn:#ff6b5e;
-    }
+    color-scheme: dark;
+    --bg:#1b1e22; --fg:#e8e5dd; --muted:#9a978d; --accent:#cf9f77;
+    --border:rgba(255,255,255,0.13); --panel:rgba(255,255,255,0.06); --ok:#7fbf8a; --warn:#dd8f6a;
   }
   * { box-sizing: border-box; }
   html, body { margin:0; padding:0; background:var(--bg); color:var(--fg);
-    font-family: system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-family: "Styrene B",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     line-height:1.5; }
   main { padding:16px; }
   img { max-width:100%; height:auto; }
   .scroll { overflow-x:auto; }
   button, select, input { font:inherit; }
-  h1,h2,h3 { color:var(--accent); }
+  select, input[type=range] { accent-color:var(--accent); }
+  h1,h2,h3 { font-family:"Copernicus",Georgia,serif; color:var(--fg); }
 </style>
 </head>
 <body>

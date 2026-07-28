@@ -48,6 +48,9 @@ export async function* runAgent(opts: {
         systemPrompt,
         mcpServers: { vulcan: server },
         allowedTools: VULCAN_TOOL_NAMES,
+        // Per-request key (BYOK). `env` REPLACES the subprocess environment, so
+        // spread process.env to keep PATH/HOME, then override the API key.
+        env: { ...process.env, ANTHROPIC_API_KEY: opts.env.anthropicApiKey },
         // Auto-allow our tools; deny the SDK's built-in filesystem/bash tools.
         canUseTool: async (toolName: string, input: Record<string, unknown>) =>
           toolName.startsWith("mcp__vulcan__")

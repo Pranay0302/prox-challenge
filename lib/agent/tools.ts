@@ -18,6 +18,8 @@ type ToolContent =
 export interface ToolResult {
   content: ToolContent[];
   isError?: boolean;
+  // Index signature so this is structurally assignable to the SDK's CallToolResult.
+  [key: string]: unknown;
 }
 
 const DOC_VALUES = ["owner-manual", "quick-start-guide", "selection-chart"] as const;

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Vulcan OmniPro 220 Assistant",
+  title: "OmniPro 220 Assistant",
   description:
-    "Multimodal, voice-enabled expert assistant for the Vulcan OmniPro 220 multiprocess welder.",
+    "Multimodal expert assistant for the Vulcan OmniPro 220 multiprocess welder.",
 };
 
 export default function RootLayout({
@@ -14,7 +14,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {/* Cinematic backdrop: cool misty haze, a warm horizon glow, dark
+            vignette framing, and film grain. */}
+        <div className="bg" aria-hidden="true">
+          <div className="glow" />
+          <div className="vignette" />
+          <div className="grain" />
+        </div>
+        {children}
+      </body>
     </html>
   );
 }
